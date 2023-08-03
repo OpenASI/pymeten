@@ -10,3 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Circleci binding
+
+## [0.0.3] - 2023-08-03
+
+### Added
+
+- Documentation on https://openasi.github.io/pymeten using sphinx
