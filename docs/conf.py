@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'pymeten'
 copyright = '2023, zhangzn710@gmail.com'
 author = 'zhangzn710@gmail.com'
-release = '0.0.3'
+release = '0.0.4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
