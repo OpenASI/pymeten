@@ -7,8 +7,9 @@ LONG_DESCRIPTION = 'Measure the different aspects of your tensor program efficie
 requirements = []
 devRequirements = [
     'numpy==1.25.1',
-    'sphinx'
-    'pytest'
+    'sphinx',
+    'sphinx_rtd_theme',
+    'pytest',
 ]
 
 setup(
