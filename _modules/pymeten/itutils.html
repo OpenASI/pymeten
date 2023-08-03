@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymeten.itutils &mdash; pymeten 0.0.3 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pymeten
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pymeten</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pymeten</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pymeten.itutils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pymeten.itutils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Author: zhangzn710@gmail.com</span>
+
+<span class="sd">This module contains utility functions for debugging and analyzing code.</span>
+
+<span class="sd">showit(inp): Prints the names of arguments passed to the calling function and displays the value of inp.</span>
+<span class="sd">sizeit(inp): Calculates and prints the size of the input object inp in human-readable format (bytes, KB, MB, GB, TB, or PB). Returns the size in bytes.</span>
+<span class="sd">timeit(fn): Measures the execution time of the function fn by running it multiple times and provides statistics such as average time, maximum loop time, and minimum loop time.</span>
+<span class="sd">checkit(fn): Executes the function fn, prints its source code, and returns the result.</span>
+
+<span class="sd">Note: These functions utilize the inspect module to gather information about the calling context and function source code.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<div class="viewcode-block" id="showit"><a class="viewcode-back" href="../../pymeten.html#pymeten.itutils.showit">[docs]</a><span class="k">def</span> <span class="nf">showit</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates and prints the size of &#39;inp&#39; in bytes, kilobytes (KB), megabytes (MB), gigabytes (GB), or terabytes (TB).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters:</span>
+<span class="sd">        inp (ndarray): The input array or object to calculate the size of.</span>
+<span class="sd">        </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        int: The size of &#39;inp&#39; in bytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">xxxxxxxx&#39;</span><span class="p">)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getouterframes</span><span class="p">(</span><span class="n">frame</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getframeinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">code_context</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+    
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;xxxxxxxx</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sizeit"><a class="viewcode-back" href="../../pymeten.html#pymeten.itutils.sizeit">[docs]</a><span class="k">def</span> <span class="nf">sizeit</span><span class="p">(</span><span class="n">inp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates and prints the size of &#39;inp&#39; in bytes, kilobytes (KB), megabytes (MB), gigabytes (GB),</span>
+<span class="sd">    or terabytes (TB). Returns the size in bytes.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    inp (ndarray): The input array or object to calculate the size of.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    int: The size of &#39;inp&#39; in bytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--------&#39;</span><span class="p">)</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">()</span>
+    <span class="n">frame</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getouterframes</span><span class="p">(</span><span class="n">frame</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getframeinfo</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">code_context</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">string</span><span class="p">[</span><span class="n">string</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+    
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+    <span class="nb">bytes</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">nbytes</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">bytes</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;bytes&#39;</span><span class="p">,</span> <span class="s1">&#39;KB&#39;</span><span class="p">,</span> <span class="s1">&#39;MB&#39;</span><span class="p">,</span> <span class="s1">&#39;GB&#39;</span><span class="p">,</span> <span class="s1">&#39;TB&#39;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="mf">1024.0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%3.1f</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+            <span class="k">break</span>
+        <span class="n">size</span> <span class="o">/=</span> <span class="mf">1024.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%3.1f</span><span class="s2"> PB&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span><span class="p">))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bytes</span></div>
+
+<div class="viewcode-block" id="timeit"><a class="viewcode-back" href="../../pymeten.html#pymeten.itutils.timeit">[docs]</a><span class="k">def</span> <span class="nf">timeit</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Measures the execution time of the provided function &#39;fn&#39; over multiple runs, displaying the average,</span>
+<span class="sd">    maximum, and minimum time taken.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        fn (function): The function to be executed and timed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        object: The return value of the provided function &#39;fn&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">========&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+    <span class="n">maxl</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">minl</span> <span class="o">=</span> <span class="mf">1e6</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">fn</span><span class="p">()</span>
+        <span class="c1">#print(f&#39;time: {time()-start}&#39;)</span>
+
+        <span class="n">taken</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span>
+        <span class="n">total</span> <span class="o">+=</span> <span class="n">taken</span>
+
+        <span class="k">if</span> <span class="n">taken</span> <span class="o">&gt;</span> <span class="n">maxl</span><span class="p">:</span>
+            <span class="n">maxl</span> <span class="o">=</span> <span class="n">taken</span>
+        <span class="k">elif</span> <span class="n">taken</span> <span class="o">&lt;</span> <span class="n">minl</span><span class="p">:</span>
+            <span class="n">minl</span> <span class="o">=</span> <span class="n">taken</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;avg: </span><span class="si">{</span><span class="n">total</span><span class="o">/</span><span class="mi">5</span><span class="si">}</span><span class="s1">, max loop: </span><span class="si">{</span><span class="n">maxl</span><span class="si">}</span><span class="s1">, min loop: </span><span class="si">{</span><span class="n">minl</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;========</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span></div>
+
+<div class="viewcode-block" id="checkit"><a class="viewcode-back" href="../../pymeten.html#pymeten.itutils.checkit">[docs]</a><span class="k">def</span> <span class="nf">checkit</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Executes the provided function &#39;fn&#39; and displays its source code and return value.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        fn (function): The function to be executed and checked.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        object: The return value of the provided function &#39;fn&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">????????&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">fn</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;????????</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, zhangzn710@gmail.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
