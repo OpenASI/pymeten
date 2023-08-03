@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymeten.triton_benchmark &mdash; pymeten 0.0.4 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pymeten
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">pymeten</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pymeten</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pymeten.triton_benchmark</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pymeten.triton_benchmark</h1><div class="highlight"><pre>
+<span></span><span class="c1">#%%</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">triton</span>
+<span class="c1">#https://triton-lang.org/main/search.html?q=do_bench&amp;check_keywords=yes&amp;area=default</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="n">InputFnType</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+<span class="n">InputType</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">InputFnType</span><span class="p">]</span>
+<span class="n">KernelType</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span>
+
+<span class="n">MeasureFnType</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span>
+
+
+<span class="c1"># %%</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="n">all_line_styles</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;solid&#39;</span><span class="p">,</span> <span class="s1">&#39;dotted&#39;</span><span class="p">,</span> <span class="s1">&#39;dashed&#39;</span><span class="p">,</span> <span class="s1">&#39;dashdot&#39;</span><span class="p">,</span> <span class="s1">&#39;dashdotdotted&#39;</span><span class="p">,</span> 
+               <span class="s1">&#39;loosely solid&#39;</span><span class="p">,</span> <span class="s1">&#39;loosely dotted&#39;</span><span class="p">,</span> <span class="s1">&#39;loosely dashed&#39;</span><span class="p">,</span> <span class="s1">&#39;loosely dashdot&#39;</span><span class="p">,</span> <span class="s1">&#39;loosely dashdotdotted&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MetricUnit"><a class="viewcode-back" href="../../pymeten.html#pymeten.triton_benchmark.MetricUnit">[docs]</a><span class="k">class</span> <span class="nc">MetricUnit</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">GBPS</span> <span class="o">=</span> <span class="s1">&#39;GB/s&#39;</span>
+    <span class="n">TBPS</span> <span class="o">=</span> <span class="s1">&#39;TB/s&#39;</span>
+    <span class="n">GFLOPS</span> <span class="o">=</span> <span class="s1">&#39;GFLOPS&#39;</span>
+    <span class="n">TFLOPS</span> <span class="o">=</span> <span class="s1">&#39;TFLOPS&#39;</span>
+    <span class="n">MS</span> <span class="o">=</span> <span class="s1">&#39;MS&#39;</span></div>
+
+<div class="viewcode-block" id="MetricConfig"><a class="viewcode-back" href="../../pymeten.html#pymeten.triton_benchmark.MetricConfig">[docs]</a><span class="k">class</span> <span class="nc">MetricConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration class for metric calculations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">GBPS</span>
+    <span class="n">num_ops</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">num_bytes</span> <span class="o">=</span> <span class="mi">12</span> <span class="c1"># A(4)+B(4)=C(4)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">MetricUnit</span><span class="o">.</span><span class="n">MS</span><span class="p">,</span> <span class="n">num_ops</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_bytes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">calc_measure_fn</span><span class="p">:</span><span class="n">MeasureFnType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a MetricConfig object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            unit (MetricUnit): The unit of measurement.</span>
+<span class="sd">            num_ops (int): The number of operations per element.</span>
+<span class="sd">            num_bytes (int): The number of bytes per element. </span>
+<span class="sd">            calc_measure_fn (callable): A function for calculating the measure (ops per millisecond or bytes per millisecond).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            AssertionError: If mandatory arguments are not provided for certain units.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_ops</span> <span class="o">=</span> <span class="n">num_ops</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_bytes</span> <span class="o">=</span> <span class="n">num_bytes</span>
+        <span class="k">if</span> <span class="n">unit</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;B/s&#39;</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">num_bytes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">calc_measure_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Must provide `num_bytes` when using unit </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">elif</span> <span class="n">unit</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;FLOPS&#39;</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">num_ops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">calc_measure_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Must provide `num_ops` when using unit </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calc_measure_fn</span> <span class="o">=</span> <span class="n">calc_measure_fn</span>
+
+<div class="viewcode-block" id="MetricConfig.get_metric"><a class="viewcode-back" href="../../pymeten.html#pymeten.triton_benchmark.MetricConfig.get_metric">[docs]</a>    <span class="k">def</span> <span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ms</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates the metric value based on the configuration.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ms (float): The time in milliseconds.</span>
+<span class="sd">            size (int or tuple/list): The size of the input.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: The calculated metric value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_measure_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_ops_pms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_measure_fn</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">ms</span><span class="p">)</span> <span class="c1"># for FLOPS</span>
+            <span class="n">num_bytes_pms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_measure_fn</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">ms</span><span class="p">)</span> <span class="c1"># for B/s</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">numel</span> <span class="o">=</span> <span class="n">size</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> \
+                        <span class="k">else</span> <span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">total_num_ops</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ops</span> <span class="o">*</span> <span class="n">numel</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_ops</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">total_num_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bytes</span> <span class="o">*</span> <span class="n">numel</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_bytes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">num_ops_pms</span> <span class="o">=</span> <span class="n">total_num_bytes</span> <span class="o">/</span> <span class="n">ms</span>
+            <span class="n">num_bytes_pms</span> <span class="o">=</span> <span class="n">total_num_bytes</span> <span class="o">/</span> <span class="n">ms</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">MS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ms</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">GBPS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_bytes_pms</span> <span class="o">*</span> <span class="mf">1e-6</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">TBPS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_bytes_pms</span> <span class="o">*</span> <span class="mf">1e-9</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">GFLOPS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_ops_pms</span> <span class="o">*</span> <span class="mf">1e-6</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="n">MetricUnit</span><span class="o">.</span><span class="n">TFLOPS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_ops_pms</span> <span class="o">*</span> <span class="mf">1e-9</span>
+        <span class="k">return</span> <span class="mi">0</span></div></div>
+
+
+<span class="c1"># %%</span>
+<div class="viewcode-block" id="triton_benchmark_sizes"><a class="viewcode-back" href="../../pymeten.html#pymeten.triton_benchmark.triton_benchmark_sizes">[docs]</a><span class="k">def</span> <span class="nf">triton_benchmark_sizes</span><span class="p">(</span><span class="n">input_map</span><span class="p">:</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">kernel_map</span><span class="p">:</span> <span class="n">KernelType</span><span class="p">,</span>
+                           <span class="n">sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">4096</span><span class="p">],</span> <span class="n">log_size</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line_styles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metric_config</span><span class="o">=</span><span class="n">MetricConfig</span><span class="p">(),</span>
+                           <span class="n">print_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_plots</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform benchmarking of Triton kernels with varying input sizes.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        input_map (dict): A dictionary mapping input names to functions: size -&gt; torch.Tensor.</span>
+<span class="sd">        kernel_map (dict): A dictionary mapping kernel names to functions that perform the computation, the input arguments must match input_map keys. Or you can use **kwargs.</span>
+<span class="sd">        sizes (list, optional): A list of input sizes to be tested. Defaults to [4096].</span>
+<span class="sd">        log_size (bool, optional): Whether to use a logarithmic scale for the input size axis. Defaults to True.</span>
+<span class="sd">        colors (list, optional): A list of colors to be used for plotting. Defaults to None.</span>
+<span class="sd">        line_styles (list, optional): A list of line styles to be used for plotting. Defaults to None.</span>
+<span class="sd">        metric_config (MetricConfig, optional): Configuration for metrics. Defaults to MetricConfig().</span>
+<span class="sd">        print_data (bool, optional): Whether to print benchmark results. Defaults to True.</span>
+<span class="sd">        show_plots (bool, optional): Whether to display the benchmark plots. Defaults to True.</span>
+<span class="sd">        save_path (str, optional): Path to save the benchmark plot. Defaults to &#39;&#39;.</span>
+
+<span class="sd">    Example: </span>
+<span class="sd">        Currently `sizes` can only be scalar.</span>
+
+<span class="sd">        input_map = {</span>
+<span class="sd">            &#39;x&#39;: lambda size: torch.rand(size, device=&#39;cuda&#39;, dtype=torch.float32),</span>
+<span class="sd">            &#39;y&#39;: lambda size: torch.rand(size, device=&#39;cuda&#39;, dtype=torch.float32)</span>
+<span class="sd">        }</span>
+
+<span class="sd">        kernel_map = {</span>
+<span class="sd">            &#39;torch&#39;: lambda x, y: x + y,</span>
+<span class="sd">            &#39;triton&#39;: lambda x, y: add(x, y)</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">providers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">kernel_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">providers</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">10</span>
+    <span class="k">if</span> <span class="n">colors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mcolors</span><span class="o">.</span><span class="n">TABLEAU_COLORS</span><span class="o">.</span><span class="n">values</span><span class="p">())[:</span><span class="nb">len</span><span class="p">(</span><span class="n">providers</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">line_styles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">line_styles</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">providers</span><span class="p">)</span>
+    <span class="n">styles</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">line_styles</span><span class="p">))</span>
+
+    <span class="n">plot_name</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+
+    <span class="c1"># define the function</span>
+    <span class="nd">@triton</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">perf_report</span><span class="p">(</span>
+        <span class="n">triton</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">Benchmark</span><span class="p">(</span>
+            <span class="n">x_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">],</span>  <span class="c1"># Argument names to use as an x-axis for the plot.</span>
+            <span class="c1">#TODO: x_vals=[math.prod(size) for size in sizes],</span>
+            <span class="n">x_vals</span><span class="o">=</span><span class="n">sizes</span><span class="p">,</span>  <span class="c1"># Different possible values for `x_name`.</span>
+            <span class="n">x_log</span><span class="o">=</span><span class="n">log_size</span><span class="p">,</span>  <span class="c1"># x axis is logarithmic.</span>
+            <span class="n">line_arg</span><span class="o">=</span><span class="s1">&#39;provider&#39;</span><span class="p">,</span>  <span class="c1"># Argument name whose value corresponds to a different line in the plot.</span>
+            <span class="n">line_vals</span><span class="o">=</span><span class="n">providers</span><span class="p">,</span>  <span class="c1"># Possible values for `line_arg`.</span>
+            <span class="n">line_names</span><span class="o">=</span><span class="n">providers</span><span class="p">,</span>  <span class="c1"># Label name for the lines.</span>
+            <span class="n">styles</span><span class="o">=</span><span class="n">styles</span><span class="p">,</span>  <span class="c1"># Line styles.</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="n">metric_config</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>  <span class="c1"># Label name for the y-axis.</span>
+            <span class="n">plot_name</span><span class="o">=</span><span class="n">plot_name</span><span class="p">,</span>  <span class="c1"># Name for the plot. Used also as a file name for saving the plot.</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">{},</span>  <span class="c1"># Values for function arguments not in `x_names` and `y_name`.</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">benchmark</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">provider</span><span class="p">):</span>
+        <span class="c1"># input initialization</span>
+        <span class="n">inputs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">input_name</span><span class="p">,</span> <span class="n">input_init</span> <span class="ow">in</span> <span class="n">input_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">inputs</span><span class="p">[</span><span class="n">input_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">input_init</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+    
+        <span class="n">quantiles</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>
+        <span class="n">ms</span><span class="p">,</span> <span class="n">min_ms</span><span class="p">,</span> <span class="n">max_ms</span> <span class="o">=</span> <span class="n">triton</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">do_bench</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">kernel_map</span><span class="p">[</span><span class="n">provider</span><span class="p">](</span><span class="o">**</span><span class="n">inputs</span><span class="p">),</span> <span class="n">percentiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">metric_config</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">ms</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> \
+                <span class="n">metric_config</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">max_ms</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> \
+                <span class="n">metric_config</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">min_ms</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+    <span class="n">benchmark</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">print_data</span><span class="o">=</span><span class="n">print_data</span><span class="p">,</span> <span class="n">show_plots</span><span class="o">=</span><span class="n">show_plots</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="n">save_path</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># %%</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, zhangzn710@gmail.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
