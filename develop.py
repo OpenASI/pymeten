@@ -2,4 +2,6 @@
 
 # python setup.py sdist bdist_wheel
 # twine upload --repository testpypi dist/*
-# pip install --index-url https://test.pypi.org/simple convsn
+# pip install --index-url https://test.pypi.org/simple pymeten
+
+# https://circleci.com/blog/deploying-documentation-to-github-pages-with-continuous-integration/

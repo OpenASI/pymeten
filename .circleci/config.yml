@@ -6,6 +6,7 @@ jobs:
     steps:
       - checkout # checkout source code to working directory
       - run:
+          name: Install dependencies
           command: | # create whl and use pipenv to install dependencies
             python3 setup.py sdist bdist_wheel
             sudo add-apt-repository universe -y
@@ -15,9 +16,40 @@ jobs:
             pipenv install dist/pymeten-0.0.2-py3-none-any.whl
             pipenv install numpy
             pipenv install pytest
+            pipenv install sphinx
       - run:
+          name: Run tests
           command: | # Run test suite
             pipenv run pytest
+      - run:
+          name: Build docs
+          command: | # Run test suite
+            cd docs/ && make html
+      - persist_to_workspace:
+          root: docs/_build
+          paths: html
+  docs-deploy:
+    docker:
+      - image: node:8.10.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: docs/_build
+      - run:
+          name: Disable jekyll builds
+          command: touch docs/_build/html/.nojekyll
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "kanbookcn@gmail.com"
+            git config user.name "OpenASI"
+      - add_ssh_keys:
+          fingerprints:
+          - "54:90:c1:e3:ef:c2:61:f2:d9:10:13:01:e6:21:35:7e"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --dotfiles --message "[skip ci]" --dist docs/_build/html
   test_pypi_publish:
     docker:
       - image: cimg/python:3.11.0
@@ -50,6 +82,12 @@ workflows:
   build_test_publish:
     jobs:
       - build_test
+      - docs-deploy
+          requires:
+            - build_test
+          filters:
+            branches:
+              only: master
       - test_pypi_publish:
           requires:
             - build_test

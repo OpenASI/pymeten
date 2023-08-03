@@ -1,7 +1,32 @@
+"""
+Author: zhangzn710@gmail.com
+
+This module contains utility functions for debugging and analyzing code.
+
+- showit(inp): Prints the names of arguments passed to the calling function and displays the value of inp.
+- sizeit(inp): Calculates and prints the size of the input object inp in human-readable format (bytes, KB, MB, GB, TB, or PB). Returns the size in bytes.
+- timeit(fn): Measures the execution time of the function fn by running it multiple times and provides statistics such as average time, maximum loop time, and minimum loop time.
+- checkit(fn): Executes the function fn, prints its source code, and returns the result.
+
+Note: These functions utilize the inspect module to gather information about the calling context and function source code.
+"""
+
 from time import time
 import inspect
 
 def showit(inp):
+    """
+    Calculates and prints the size of 'inp' in bytes, kilobytes (KB), megabytes (MB), gigabytes (GB),
+    or terabytes (TB). Returns the size in bytes.
+
+    Parameters:
+    inp: ndarray
+        The input array or object to calculate the size of.
+
+    Returns:
+    int
+        The size of 'inp' in bytes.
+    """
     print('\nxxxxxxxx')
     frame = inspect.currentframe()
     frame = inspect.getouterframes(frame)[1]
@@ -23,6 +48,19 @@ def showit(inp):
     print('xxxxxxxx\n')
 
 def sizeit(inp):
+    """
+    Calculates and prints the size of 'inp' in bytes, kilobytes (KB), megabytes (MB), gigabytes (GB),
+    or terabytes (TB). Returns the size in bytes.
+
+    Parameters:
+    inp: ndarray
+        The input array or object to calculate the size of.
+
+    Returns:
+    int
+        The size of 'inp' in bytes.
+    """
+    
     print('\n--------')
     frame = inspect.currentframe()
     frame = inspect.getouterframes(frame)[1]
@@ -54,6 +92,19 @@ def sizeit(inp):
     return bytes
 
 def timeit(fn):
+    """
+    Measures the execution time of the provided function 'fn' over multiple runs, displaying the average,
+    maximum, and minimum time taken.
+
+    Parameters:
+    fn: function
+        The function to be executed and timed.
+
+    Returns:
+    object
+        The return value of the provided function 'fn'.
+    """
+
     print('\n========')
     print(inspect.getsource(fn))
     maxl = 0
@@ -79,6 +130,17 @@ def timeit(fn):
     return x
 
 def checkit(fn):
+    """
+    Executes the provided function 'fn' and displays its source code and return value.
+
+    Parameters:
+    fn: function
+        The function to be executed and checked.
+
+    Returns:
+    object
+        The return value of the provided function 'fn'.
+    """
     print('\n????????')
     print(inspect.getsource(fn))
     res = fn()
