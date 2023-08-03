@@ -12,15 +12,14 @@ jobs:
             sudo add-apt-repository universe -y
             sudo apt-get update
             sudo apt install -y python3-pip
-            sudo pip install pipenv
             sudo pip install sphinx sphinx_rtd_theme
-            pipenv install dist/pymeten-0.0.4-py3-none-any.whl
-            pipenv install numpy
-            pipenv install pytest
+            sudo pip install dist/pymeten-0.0.4-py3-none-any.whl
+            sudo pip install numpy
+            sudo pip install pytest
       - run:
           name: Run tests
           command: | # Run test suite
-            pipenv run pytest
+            pytest
       - run:
           name: Build docs
           command: | # Run test suite
