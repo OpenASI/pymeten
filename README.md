@@ -43,3 +43,5 @@ triton_benchmark_sizes(input_map, kernel_map)
 ```
 
 Please note that the current implementation only supports scalar values for `sizes`. The benchmarking results are displayed in plots, and optional data printing and saving features can be enabled by setting the corresponding parameters.
+
+Remeber to install python-dev.

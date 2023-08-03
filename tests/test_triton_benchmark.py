@@ -5,6 +5,8 @@ import triton.language as tl
 from pymeten import triton_benchmark_sizes, MetricUnit, MetricConfig
 
 def test_triton_add():
+    if not torch.cuda.is_available():
+        return
 
     @triton.jit
     def add_kernel(
