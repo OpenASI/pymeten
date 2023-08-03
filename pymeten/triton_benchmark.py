@@ -31,6 +31,7 @@ class MetricUnit(Enum):
 class MetricConfig:
     """
     Configuration class for metric calculations.
+
     """
 
     unit = MetricUnit.GBPS
