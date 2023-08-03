@@ -14,4 +14,6 @@
 # every time we change version:
 # 1. CHANGELOG.md
 # 2. .circleci/config.ml: pip install dist/pymetent-x.x.x-py3-none.any.whl
-# 3. setup.py VERSION='x.x.x
+# 3. setup.py VERSION='x.x.x'
+# 4. docs/conf.py release='x.x.x'
+# 4. sphinx-apidoc -o docs pymeten/

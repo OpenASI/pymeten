@@ -1,10 +1,15 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 DESCRIPTION = 'A tool for metrics of tensors'
 LONG_DESCRIPTION = 'Measure the different aspects of your tensor program efficiency'
 
-requirements = []
+requirements = [
+    'torch',
+    'triton',
+    'matplotlib',
+    'pandas'
+]
 devRequirements = [
     'numpy==1.25.1',
     'sphinx',

@@ -16,3 +16,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Documentation on https://openasi.github.io/pymeten using sphinx
+
+## [0.0.4] - 2023-08-03
+
+### Added
+
+- triton speed with size benchmark function
