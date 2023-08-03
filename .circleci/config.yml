@@ -82,7 +82,7 @@ workflows:
   build_test_publish:
     jobs:
       - build_test
-      - docs-deploy
+      - docs-deploy:
           requires:
             - build_test
           filters:
