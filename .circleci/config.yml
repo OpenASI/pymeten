@@ -13,10 +13,10 @@ jobs:
             sudo apt-get update
             sudo apt install -y python3-pip
             sudo pip install pipenv
+            sudo pip install sphinx
             pipenv install dist/pymeten-0.0.2-py3-none-any.whl
             pipenv install numpy
             pipenv install pytest
-            pipenv install sphinx
       - run:
           name: Run tests
           command: | # Run test suite
@@ -85,9 +85,9 @@ workflows:
       - docs-deploy:
           requires:
             - build_test
-          filters:
-            branches:
-              only: master
+          #filters:
+          #  branches:
+          #    only: master
       - test_pypi_publish:
           requires:
             - build_test
