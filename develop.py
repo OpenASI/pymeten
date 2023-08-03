@@ -9,3 +9,9 @@
 # . https://towardsdatascience.com/documenting-python-code-with-sphinx-554e1d6c4f6d
 # . https://eikonomega.medium.com/getting-started-with-sphinx-autodoc-part-1-2cebbbca5365
 # .   sphinx-apidoc -o docs pymeten/
+
+
+# every time we change version:
+# 1. CHANGELOG.md
+# 2. .circleci/config.ml: pip install dist/pymetent-x.x.x-py3-none.any.whl
+# 3. setup.py VERSION='x.x.x
