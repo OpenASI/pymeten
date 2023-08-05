@@ -82,7 +82,7 @@ class MetricConfig:
             num_bytes_pms = total_num_bytes / ms
 
         if self.unit == MetricUnit.MS:
-            return int(ms)
+            return ms
         elif self.unit == MetricUnit.GBPS:
             return num_bytes_pms * 1e-6
         elif self.unit == MetricUnit.TBPS:
@@ -127,6 +127,7 @@ def triton_benchmark_sizes(input_map: InputType, kernel_map: KernelType,
             'triton': lambda x, y: add(x, y)
         }
     """
+    print(f'Using metric: {metric_config.unit.name}')
     providers = list(kernel_map.keys())
     assert len(providers) <= 10
     if colors is None:
